@@ -3,7 +3,7 @@ package app.controllers;
 import app.models.*;
 import app.utils.Conexion;
 import java.sql.*;
-import java.util.Map;
+import java.util.*;
 import javax.swing.table.DefaultTableModel;
 
 public class ClienteDaoImp implements ClienteDao{
@@ -329,13 +329,32 @@ public class ClienteDaoImp implements ClienteDao{
 
     @Override
     public Map<String, Integer> obtenerNombresClientes() {
+        Map <String, Integer> mapaClientes = new HashMap <>();
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
         
-        
-        
-        
-        
-        
-        
-        
+        try {
+            conn = Conexion.getConexion();
+            String query = "SELECT cl.id nombre FROM clientes cl JOIN personas p ON p.id = cl.persona_id";
+            ps = conn.prepareStatement(query);
+            rs = ps.executeQuery();
+            
+            while (rs.next()){
+                mapaClientes.put(rs.getString("nombre"), rs.getInt("id"));
+            }
+        }catch (SQLException e){
+            e.printStackTrace();
+            System.out.println("Error en la base de datos: "+e.toString());
+        } finally {
+            try {
+                if (ps != null) ps.close();
+                if (conn != null) conn.close();
+            } catch (SQLException e){
+                e.printStackTrace();
+                System.out.println("Error al cerrar recursos: "+e.toString());
+            }
+        }
+        return mapaClientes;
     }
 }
